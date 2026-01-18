@@ -1,7 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+from datetime import datetime
 
 
-class PostBase(BaseModel):# This the schema
+class PostBase(BaseModel):
     title: str
     content: str
     published: bool = True
@@ -9,7 +10,20 @@ class PostBase(BaseModel):# This the schema
 class PostCreate(PostBase):
     pass
 
-class PostUpdtae(PostBase):# This the schema
+class PostUpdtae(PostBase):
     title: str
     content: str
     published: bool
+
+
+class Post(PostBase):
+    created_at: datetime
+
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserOut(BaseModel):
+    id: int
+    email: EmailStr
