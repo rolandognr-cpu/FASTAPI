@@ -1,76 +1,16 @@
 
-from fastapi import FastAPI, status, HTTPException, Depends
-from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from . import models
-from .database import engine, get_db
-from .schemas import PostCreate, PostUpdtae, Post, UserCreate, UserOut
-from typing import List
-from .utils import hash
-
-
-
-
-
+from .database import engine
+from .routers import post, user, web
+from pathlib import Path
 
 models.Base.metadata.create_all(bind=engine)
+BASE_DIR = Path(__file__).resolve().parent
 
 app = FastAPI()
-
-# Retrieve all posts
-@app.get("/posts", response_model=List[Post])
-def get_posts(db: Session = Depends(get_db)):
-    posts = db.query(models.Post).all()
-    return posts
-
-# Retrieve posts by id
-@app.get("/posts/{id}", response_model=Post)
-def get_post(id: int, db: Session = Depends(get_db)):
-    post = db.query(models.Post).filter(models.Post.id == id).first()
-    if not post:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id: {id} not found")
-    return post
-
-# Create a post
-@app.post("/posts", status_code=status.HTTP_201_CREATED, response_model=Post)
-def create_posts(post: PostCreate, db: Session = Depends(get_db)):
-    new_post = models.Post(**post.model_dump())
-    db.add(new_post)
-    db.commit()
-    db.refresh(new_post)
-    return new_post
-
-# Delete a post
-@app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int, db: Session = Depends(get_db)):
-    post = db.query(models.Post).filter(models.Post.id == id)
-    if post.first() == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id: {id} not found")
-    post.delete(synchronize_session=False)
-    db.commit()
-    
-# Update a post
-@app.put("/posts/{id}", status_code=status.HTTP_202_ACCEPTED, response_model=Post)
-def update_post(id: int, post: PostUpdtae, db: Session = Depends(get_db)):
-    post_query = db.query(models.Post).filter(models.Post.id == id)
-    old_post = post_query.first()
-    if old_post == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id: {id} not found")
-    post_query.update(post.model_dump(), synchronize_session=False)
-    db.commit()
-    return post_query.first()
-
-@app.post("/users", status_code=status.HTTP_201_CREATED, response_model=UserOut)
-def create_user(user: UserCreate, db: Session = Depends(get_db)):
-
-    if db.query(models.User).filter(models.User.email == user.email).first():
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"User with email: {user.email} already exists")
-
-    # hash the password user.password
-    hashed_password = hash(user.password)
-    user.password = hashed_password
-    new_user = models.User(**user.model_dump())
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
+app.include_router(post.router)
+app.include_router(user.router)
+app.include_router(web.router)
