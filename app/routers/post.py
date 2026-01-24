@@ -4,6 +4,7 @@ from .. import models
 from ..database import get_db
 from ..schemas import PostCreate, PostUpdtae, Post
 from typing import List
+from ..oauth2 import get_current_user
 
 router = APIRouter(
     prefix="/posts",
@@ -12,13 +13,13 @@ router = APIRouter(
 
 # Retrieve all posts
 @router.get("/", response_model=List[Post])
-def get_posts(db: Session = Depends(get_db)):
+def get_posts(db: Session = Depends(get_db), user_id: int = Depends(get_current_user)):
     posts = db.query(models.Post).all()
     return posts
 
 # Retrieve posts by id
 @router.get("/{id}", response_model=Post)
-def get_post(id: int, db: Session = Depends(get_db)):
+def get_post(id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)):
     post = db.query(models.Post).filter(models.Post.id == id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id: {id} not found")
@@ -26,7 +27,7 @@ def get_post(id: int, db: Session = Depends(get_db)):
 
 # Create a post
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=Post)
-def create_posts(post: PostCreate, db: Session = Depends(get_db)):
+def create_posts(post: PostCreate, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)):
     new_post = models.Post(**post.model_dump())
     db.add(new_post)
     db.commit()
@@ -35,7 +36,7 @@ def create_posts(post: PostCreate, db: Session = Depends(get_db)):
 
 # Delete a post
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int, db: Session = Depends(get_db)):
+def delete_post(id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)):
     post = db.query(models.Post).filter(models.Post.id == id)
     if post.first() == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id: {id} not found")
@@ -44,7 +45,7 @@ def delete_post(id: int, db: Session = Depends(get_db)):
     
 # Update a post
 @router.put("/{id}", status_code=status.HTTP_202_ACCEPTED, response_model=Post)
-def update_post(id: int, post: PostUpdtae, db: Session = Depends(get_db)):
+def update_post(id: int, post: PostUpdtae, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)):
     post_query = db.query(models.Post).filter(models.Post.id == id)
     old_post = post_query.first()
     if old_post == None:
