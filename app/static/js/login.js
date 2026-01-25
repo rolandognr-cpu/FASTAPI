@@ -37,9 +37,9 @@ buttonEl.addEventListener('click', event => {
         const message = `User with email: ${data.email} has successfully been created`
         const type = 'success'
         appendAlert(message, type)
-        emailField.value = ""
-        passwordField.value = ""
-        window.location.replace(`http://127.0.0.1:8000/users/${data.id}`);
+        // emailField.value = ""
+        // passwordField.value = ""
+        // window.location.replace(`http://127.0.0.1:8000/users/${data.id}`);
 
     }).catch(error => console.log(error))
 })

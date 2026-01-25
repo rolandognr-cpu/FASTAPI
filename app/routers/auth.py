@@ -12,10 +12,10 @@ from pathlib import Path
 router = APIRouter(tags=['Authentication'])
 
 base_dir = Path(__file__).resolve().parent.parent
-print(base_dir)
 
 
-@router.get('/signup')
+
+@router.get('/signup', include_in_schema=False)
 async def serve_login():
     file_path = base_dir / "templates" / "login.html"
     return responses.FileResponse(file_path)
