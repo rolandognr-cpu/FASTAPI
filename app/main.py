@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from . import models
 from .database import engine
-from .routers import post, user, web, auth
+from .routers import post, user, web, auth, vote
 from pathlib import Path
 from .oauth2 import oauth2_scheme
 
@@ -30,3 +30,4 @@ app.include_router(post.router)
 app.include_router(user.router)
 app.include_router(web.router)
 app.include_router(auth.router)
+app.include_router(vote.router)
