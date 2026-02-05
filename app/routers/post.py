@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from .. import models
 from ..database import get_db
 from ..schemas import PostCreate, PostUpdtae, Post
-from typing import List
+from typing import List, Optional
 from ..oauth2 import get_current_user
 from ..oauth2 import oauth2_scheme
 
@@ -14,9 +14,10 @@ router = APIRouter(
 
 # Retrieve all posts
 @router.get("/", response_model=List[Post])
-def get_posts(db: Session = Depends(get_db), current_user: int = Depends(get_current_user), token: str = Depends(oauth2_scheme)):
+def get_posts(db: Session = Depends(get_db), current_user: int = Depends(get_current_user), token: str = Depends(oauth2_scheme), limit: int = 20, skip: int = 0, search: Optional[str] = ""):
     
-    posts = db.query(models.Post).all()
+    
+    posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
     return posts
 
 # Retrieve posts by id

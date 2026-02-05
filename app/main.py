@@ -11,6 +11,7 @@ from .oauth2 import oauth2_scheme
 
 
 
+
 models.Base.metadata.create_all(bind=engine)
 BASE_DIR = Path(__file__).resolve().parent
 
