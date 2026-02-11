@@ -6,7 +6,7 @@ from typing import List, Optional
 
 
 router = APIRouter(
-    prefix="/vote",
+    prefix="/api/vote",
     tags=['Vote']
 )
 

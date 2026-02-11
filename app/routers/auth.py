@@ -9,7 +9,9 @@ from ..oauth2 import create_access_token
 from pathlib import Path
 
 
-router = APIRouter(tags=['Authentication'])
+router = APIRouter(
+    prefix="/api",
+    tags=['Authentication'])
 
 base_dir = Path(__file__).resolve().parent.parent
 

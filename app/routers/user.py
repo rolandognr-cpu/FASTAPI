@@ -6,7 +6,7 @@ from ..schemas import UserCreate, UserOut
 from ..utils import hash
 
 router = APIRouter(
-    prefix="/users",
+    prefix="/api/users",
     tags=['Users']
 )
 
