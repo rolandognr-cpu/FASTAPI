@@ -38,4 +38,20 @@ def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
 
     # return token
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/authorize")
+def authorize(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    print(form_data.username, form_data.password)
+    user = db.query(models.User).filter(models.User.email == form_data.username).first()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f'Invalid credentials')
     
+    if not verify(form_data.password, user.password):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f'Invalid credentials')
+    
+    # Create a token
+    access_token = create_access_token(data={"user_id": user.id})
+
+    # return token
+    return {"access_token": access_token, "token_type": "bearer"}

@@ -12,7 +12,7 @@ from .oauth2 import oauth2_scheme
 
 
 
-models.Base.metadata.create_all(bind=engine)
+#models.Base.metadata.create_all(bind=engine)
 BASE_DIR = Path(__file__).resolve().parent
 
 app = FastAPI()
@@ -31,3 +31,7 @@ app.include_router(user.router)
 app.include_router(web.router)
 app.include_router(auth.router)
 app.include_router(vote.router)
+
+@app.get("/")
+def root():
+    return {"message": "Hello World!!"}
